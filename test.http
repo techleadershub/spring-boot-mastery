@@ -1,0 +1,55 @@
+### Variables
+@baseUrl = http://localhost:8080
+
+### Test all scopes at once
+GET {{baseUrl}}/scopes/demo
+Accept: application/json
+
+### Test Singleton Scope
+# Run this multiple times - you should see the same ID but incrementing counter
+GET {{baseUrl}}/scopes/singleton
+Accept: application/json
+
+### Test Request Scope
+# Run this multiple times - you should see different IDs each time
+GET {{baseUrl}}/scopes/request
+Accept: application/json
+
+### Test Session Scope
+# Run this multiple times - you should see the same ID within the same session
+GET {{baseUrl}}/scopes/session
+Accept: application/json
+
+### Test Application Scope
+# Run this multiple times - you should see the same ID across all requests
+GET {{baseUrl}}/scopes/application
+Accept: application/json
+
+### Test Session Scope in a new session
+# Copy this request to a new file to test with a different session
+GET {{baseUrl}}/scopes/session
+Accept: application/json
+Cookie: JSESSIONID=new_session_1
+
+### Test multiple requests in sequence to verify scope behaviors
+
+### 1. First Request - Note the IDs and counters
+GET {{baseUrl}}/scopes/demo
+Accept: application/json
+
+### 2. Second Request - Compare with first request
+GET {{baseUrl}}/scopes/demo
+Accept: application/json
+
+### 3. Third Request with new session
+GET {{baseUrl}}/scopes/demo
+Accept: application/json
+Cookie: JSESSIONID=new_session_2
+
+### Expected behaviors:
+# - Singleton: Same ID, incrementing counter
+# - Prototype: Different IDs each time
+# - Request: Different IDs each request
+# - Session: Same ID within same session, different across sessions
+# - Application: Same ID across all requests
+
