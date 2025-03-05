@@ -1,2 +1,3 @@
 ## What's covered
-   - XML based configuration
+   - Java based configuration
+   - Lazy loading of beans
