@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Example of XML-based bean configuration (legacy approach) -->
+    <!-- This is included for educational purposes only -->
+    
+    <!-- Define ExternalService bean -->
+    <bean id="xmlExternalService" class="com.example.springdi.model.ExternalService">
+        <constructor-arg value="https://legacy-api.example.com"/>
+        <constructor-arg value="60"/>
+    </bean>
+    
+    <!-- Define DataRepository bean -->
+    <bean id="xmlDataRepository" class="com.example.springdi.repository.InMemoryDataRepository">
+        <constructor-arg value="XML Configured Repository"/>
+    </bean>
+    
+    <!-- To use this XML configuration, you would load it with:
+         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+    -->
+    
+</beans> 
