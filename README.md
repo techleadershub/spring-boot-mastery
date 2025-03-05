@@ -1,2 +1,2 @@
 ## What's covered
-   - XML based configuration
+   - Modular configuration based on Java

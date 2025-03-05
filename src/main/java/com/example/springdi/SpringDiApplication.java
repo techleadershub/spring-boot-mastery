@@ -1,8 +1,9 @@
 package com.example.springdi;
 
-import com.example.springdi.component.HeavyComponent;
-import com.example.springdi.component.MyBean;
-import com.example.springdi.config.AppConfig;
+import com.example.springdi.config.MainConfig;
+import com.example.springdi.repository.MyRepository;
+import com.example.springdi.service.MyService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -15,20 +16,16 @@ public class SpringDiApplication {
         logger.info("Starting Spring DI Practice Application");
 
         // Load Spring Context
-        try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {
+        try (var context = new AnnotationConfigApplicationContext(MainConfig.class)) {
             logger.info("Spring Context initialized");
 
+            // Get MyService bean
+            var myService = context.getBean(MyService.class);
+            myService.doSomething();
 
-            //Instantiate MyBean
-            logger.info("Requesting MyBean bean...");
-            var myBean = context.getBean("myBean", MyBean.class);
-            myBean.doSomething();
-
-
-            // HeavyComponent has not been initialized yet because of @Lazy
-            logger.info("Requesting HeavyComponent bean...");
-            HeavyComponent heavyComponent = context.getBean(HeavyComponent.class); // This triggers initialization
-            heavyComponent.doSomething();
+            // Get MyRepository bean 
+            var myRepository = context.getBean(MyRepository.class);
+            myRepository.doQuery();
         }
 
         logger.info("Spring DI Practice Application completed");
