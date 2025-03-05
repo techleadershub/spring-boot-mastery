@@ -1,2 +1,2 @@
 ## What's covered
-   - Modular configuration based on Java
+   - Event driven architectue within Spring to avoid tight coupling between services
