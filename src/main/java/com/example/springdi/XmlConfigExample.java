@@ -12,7 +12,7 @@ public class XmlConfigExample {
     
     private static final Logger logger = LoggerFactory.getLogger(XmlConfigExample.class);
     
-    public static void demonstrateXmlConfig() {
+    public static void main(String args[]) {
         logger.info("Demonstrating XML-based configuration");
         
         // Create Spring context using XML configuration
