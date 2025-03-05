@@ -2,7 +2,6 @@ package com.example.springdi;
 
 import com.example.springdi.component.MyBean;
 import com.example.springdi.config.AppConfig;
-import com.example.springdi.service.DemoOrchestrator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -32,16 +31,7 @@ public class SpringDiApplication {
                 logger.error("Error accessing MyBean: {}", e.getMessage());
             }
             
-            // Get the orchestrator service that will run all demos
-            // DemoOrchestrator orchestrator = context.getBean(DemoOrchestrator.class);
-            // orchestrator.performDemo();
-            
-            // // Log all beans in context
-            // logger.info("Beans loaded in application context:");
-            // String[] beanNames = context.getBeanDefinitionNames();
-            // for (String beanName : beanNames) {
-            //     logger.info("Bean: {}", beanName);
-            // }
+
         }
         
         // Demonstrate XML configuration (legacy approach)
