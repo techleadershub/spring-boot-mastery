@@ -1,18 +1,24 @@
 package com.example.springdi.config;
 
-import com.example.springdi.component.MyBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Lazy;
+
+import com.example.springdi.component.HeavyComponent;
+import com.example.springdi.component.MyBean;
 
 @Configuration
-@ComponentScan(basePackages = "com.example.springdi")
 public class AppConfig {
 
     @Bean
-    public MyBean myBean() {
+    MyBean myBean() {
         return new MyBean();
     }
-} 
+
+    @Lazy
+    @Bean
+    HeavyComponent heavyComponent() {
+        return new HeavyComponent();
+    }
+    
+}
