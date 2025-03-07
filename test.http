@@ -1,5 +1,8 @@
 ### Variables
 @baseUrl = http://localhost:8080
+@host = http://localhost:9000
+@username = user
+@password = password
 
 ### 1. Authentication Endpoints
 
@@ -152,3 +155,44 @@ DELETE {{baseUrl}}/api/admin/users/1
 ### Variables (Replace these with actual tokens)
 @user_token = your_user_token_here
 @admin_token = your_admin_token_here
+
+### Public Endpoints
+
+GET {{host}}/public
+Accept: application/json
+
+### GET API Public Endpoint
+GET {{host}}/api/public
+Accept: application/json
+
+### User Endpoints (requires authentication)
+
+### Basic Auth - User Endpoint
+GET {{host}}/api/secure
+Authorization: Basic dXNlcjpwYXNzd29yZA==
+Accept: application/json
+
+### Basic Auth - User Info
+GET {{host}}/user
+Authorization: Basic dXNlcjpwYXNzd29yZA==
+Accept: application/json
+
+### Admin Endpoints (requires ADMIN role)
+
+### Basic Auth - Admin Endpoint (using admin:password)
+GET {{host}}/admin
+Authorization: Basic YWRtaW46cGFzc3dvcmQ=
+Accept: application/json
+
+### Form Login Endpoints
+# Note: Form login endpoints are typically accessed via browser
+# These are just examples of the URLs
+
+### Login Page
+GET {{host}}/login
+
+### Home Page (requires authentication)
+GET {{host}}/home
+
+### Logout
+POST {{host}}/logout
