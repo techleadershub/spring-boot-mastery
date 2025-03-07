@@ -1,86 +1,81 @@
 package com.example.security.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import java.util.Arrays;
+
+import static com.example.security.config.SecurityConstants.ADMIN_PATHS;
+import static com.example.security.config.SecurityConstants.PUBLIC_PATHS;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${app.security.admin.username}")
-    private String adminUsername;
-
-    @Value("${app.security.admin.password}")
-    private String adminPassword;
-
-    @Value("${app.security.admin.roles}")
-    private String adminRoles;
-
-    @Value("${app.security.manager.username}")
-    private String managerUsername;
-
-    @Value("${app.security.manager.password}")
-    private String managerPassword;
-
-    @Value("${app.security.manager.roles}")
-    private String managerRoles;
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+
         http
-            .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity in this demo
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/public").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/manager").hasRole("MANAGER")
-                .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**"))
+                .disable()
+            )
+            .authorizeHttpRequests(auth -> auth
+                // H2 Console - use AntPathRequestMatcher
+                .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+                // Public endpoints - use MvcRequestMatcher
+                .requestMatchers(mvcMatcherBuilder.pattern("/auth/**")).permitAll()
+                .requestMatchers(mvcMatcherBuilder.pattern("/api/public/**")).permitAll()
+                // Admin endpoints
+                .requestMatchers(mvcMatcherBuilder.pattern("/api/admin/**")).hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
-            .httpBasic(httpBasic -> {})  // Use lambda-based configuration for httpBasic
-            ;
-        
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            // Allow frames for H2 console
+            .headers(headers -> headers
+                .frameOptions(frame -> frame
+                    .sameOrigin()
+                )
+            );
+
         return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        // Create user with USER role
-        UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("userpass"))
-                .roles("USER")
-                .build();
-
-        // Create admin with ADMIN role
-        // Note: We're not using the property value directly as it might contain extra characters
-        UserDetails admin = User.builder()
-                .username(adminUsername)
-                .password(passwordEncoder().encode(adminPassword))
-                .roles("ADMIN")  
-                .build();
-
-        UserDetails manager = User.builder()
-                .username(managerUsername)
-                .password(passwordEncoder().encode(managerPassword))
-                .roles("MANAGER")  
-                .build();
-
-
-        return new InMemoryUserDetailsManager(user, admin, manager);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080")); // Add your frontend URL
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 } 

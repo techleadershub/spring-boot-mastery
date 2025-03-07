@@ -1,49 +1,139 @@
-### Define Variables
+### Variables
 @baseUrl = http://localhost:8080
-@adminAuth = Basic YWRtaW46YWRtaW5wYXNz
-@userAuth = Basic dXNlcjp1c2VycGFzcw==
 
-@managerAuth = Basic bWFuYWdlcjptYW5hZ2VycGFzcw==
+### 1. Authentication Endpoints
 
-### Public Endpoint (No Authentication)
-GET {{baseUrl}}/public
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "password123",
+    "role": ["user"]
+}
+
+### Register an admin user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "email": "admin@example.com",
+    "password": "admin123",
+    "role": ["admin", "user"]
+}
+
+### Register with existing username (Should fail)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "another@example.com",
+    "password": "password123",
+    "role": ["user"]
+}
+
+### Login as User
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "password123"
+}
+
+### Login as Admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "admin123"
+}
+
+### Login with Invalid Credentials (Should fail)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "wrongpassword"
+}
+
+### Logout
+POST {{baseUrl}}/auth/logout
+
+### 2. Protected Endpoints
+
+### Public Endpoint (No Auth Required)
+GET {{baseUrl}}/api/public
 Accept: application/json
 
-### User Endpoint with USER credentials
-GET {{baseUrl}}/user
+### User Endpoint (Requires Authentication)
+GET {{baseUrl}}/api/user
 Accept: application/json
-Authorization: {{userAuth}}
 
-### User Endpoint with ADMIN credentials
-GET {{baseUrl}}/user
+### Admin Endpoint (Requires ADMIN Role)
+GET {{baseUrl}}/api/admin
 Accept: application/json
-Authorization: {{adminAuth}}
 
-### Admin Endpoint with ADMIN credentials
-GET {{baseUrl}}/admin
+### 3. User Management (Admin Only)
+
+### Get All Users
+GET {{baseUrl}}/api/admin/users
 Accept: application/json
-Authorization: {{adminAuth}}
 
-### Admin Endpoint with USER credentials (should fail with 403 Forbidden)
-GET {{baseUrl}}/admin
+### Get User by ID
+GET {{baseUrl}}/api/admin/users/1
 Accept: application/json
-Authorization: {{userAuth}}
 
-### Alternative: Direct credentials for USER
-GET {{baseUrl}}/user
+### Get Non-existent User (Should return 404)
+GET {{baseUrl}}/api/admin/users/999
 Accept: application/json
-Authorization: {{userAuth}}
 
-### Alternative: Direct credentials for ADMIN
-GET {{baseUrl}}/admin
-Accept: application/json
-Authorization: {{adminAuth}}
+### Update User Role (Admin Only)
+PUT {{baseUrl}}/api/admin/users/1/roles
+Content-Type: application/json
 
-### Alternative: Using curl-style auth for ADMIN
-GET {{baseUrl}}/admin
-Authorization: {{adminAuth}}
+{
+    "roles": ["admin", "user"]
+}
 
-### Manager Endpoint with MANAGER credentials
-GET {{baseUrl}}/manager
-Accept: application/json
-Authorization: {{managerAuth}}
+### Delete User (Admin Only)
+DELETE {{baseUrl}}/api/admin/users/1
+
+### Testing Instructions:
+# 1. First register some users (both regular and admin)
+# 2. Login with the created credentials
+# 3. JWT will be automatically stored in cookies
+# 4. Try accessing protected endpoints:
+#    - /api/public should work without auth
+#    - /api/user should work for both user and admin
+#    - /api/admin should only work for admin
+# 5. Test error scenarios:
+#    - Invalid credentials
+#    - Accessing admin endpoints as regular user
+#    - Using expired tokens
+#    - Duplicate registration
+#    - Non-existent resources
+# 6. Test logout functionality
+#    - After logout, protected endpoints should fail
+# 7. Test user management (as admin):
+#    - List all users
+#    - Get specific user
+#    - Update user roles
+#    - Delete user
+
+### Expected HTTP Status Codes:
+# 200 OK: Successful request
+# 201 Created: Successful registration
+# 204 No Content: Successful deletion
+# 400 Bad Request: Invalid input/validation error
+# 401 Unauthorized: Invalid credentials or missing token
+# 403 Forbidden: Valid token but insufficient permissions
+# 404 Not Found: Resource doesn't exist
+# 409 Conflict: Resource already exists (e.g., duplicate username)
+# 500 Internal Server Error: Server-side error
