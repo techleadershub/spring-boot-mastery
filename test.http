@@ -1,0 +1,42 @@
+### Define Variables
+@baseUrl = http://localhost:8080
+@adminAuth = Basic YWRtaW46YWRtaW5wYXNz
+@userAuth = Basic dXNlcjp1c2VycGFzcw==
+
+### Public Endpoint (No Authentication)
+GET {{baseUrl}}/public
+Accept: application/json
+
+### User Endpoint with USER credentials
+GET {{baseUrl}}/user
+Accept: application/json
+Authorization: {{userAuth}}
+
+### User Endpoint with ADMIN credentials
+GET {{baseUrl}}/user
+Accept: application/json
+Authorization: {{adminAuth}}
+
+### Admin Endpoint with ADMIN credentials
+GET {{baseUrl}}/admin
+Accept: application/json
+Authorization: {{adminAuth}}
+
+### Admin Endpoint with USER credentials (should fail with 403 Forbidden)
+GET {{baseUrl}}/admin
+Accept: application/json
+Authorization: {{userAuth}}
+
+### Alternative: Direct credentials for USER
+GET {{baseUrl}}/user
+Accept: application/json
+Authorization: {{userAuth}}
+
+### Alternative: Direct credentials for ADMIN
+GET {{baseUrl}}/admin
+Accept: application/json
+Authorization: {{adminAuth}}
+
+### Alternative: Using curl-style auth for ADMIN
+GET {{baseUrl}}/admin
+Authorization: {{adminAuth}}
