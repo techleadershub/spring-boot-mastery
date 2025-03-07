@@ -36,7 +36,8 @@ public class SecurityConfig {
                 .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
-            .httpBasic();
+            .httpBasic(httpBasic -> {})  // Use lambda-based configuration for httpBasic
+            ;
         
         return http.build();
     }
