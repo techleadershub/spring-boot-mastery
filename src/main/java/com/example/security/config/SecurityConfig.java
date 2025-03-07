@@ -26,6 +26,15 @@ public class SecurityConfig {
     @Value("${app.security.admin.roles}")
     private String adminRoles;
 
+    @Value("${app.security.manager.username}")
+    private String managerUsername;
+
+    @Value("${app.security.manager.password}")
+    private String managerPassword;
+
+    @Value("${app.security.manager.roles}")
+    private String managerRoles;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -33,6 +42,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/public").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
+                .requestMatchers("/manager").hasRole("MANAGER")
                 .requestMatchers("/user").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
@@ -56,10 +66,17 @@ public class SecurityConfig {
         UserDetails admin = User.builder()
                 .username(adminUsername)
                 .password(passwordEncoder().encode(adminPassword))
-                .roles("ADMIN")  // Explicitly set "ADMIN" instead of using the property
+                .roles("ADMIN")  
                 .build();
 
-        return new InMemoryUserDetailsManager(user, admin);
+        UserDetails manager = User.builder()
+                .username(managerUsername)
+                .password(passwordEncoder().encode(managerPassword))
+                .roles("MANAGER")  
+                .build();
+
+
+        return new InMemoryUserDetailsManager(user, admin, manager);
     }
 
     @Bean

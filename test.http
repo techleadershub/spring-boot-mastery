@@ -3,6 +3,8 @@
 @adminAuth = Basic YWRtaW46YWRtaW5wYXNz
 @userAuth = Basic dXNlcjp1c2VycGFzcw==
 
+@managerAuth = Basic bWFuYWdlcjptYW5hZ2VycGFzcw==
+
 ### Public Endpoint (No Authentication)
 GET {{baseUrl}}/public
 Accept: application/json
@@ -40,3 +42,8 @@ Authorization: {{adminAuth}}
 ### Alternative: Using curl-style auth for ADMIN
 GET {{baseUrl}}/admin
 Authorization: {{adminAuth}}
+
+### Manager Endpoint with MANAGER credentials
+GET {{baseUrl}}/manager
+Accept: application/json
+Authorization: {{managerAuth}}

@@ -38,6 +38,19 @@ public class HelloController {
         return response;
     }
 
+    @GetMapping("/manager")
+    public Map<String, Object> managerEndpoint() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Manager Access Granted");
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("username", auth.getName());
+        response.put("authorities", auth.getAuthorities());
+        
+        return response;
+    }
+
     @GetMapping("/public")
     public Map<String, Object> publicEndpoint() {
         Map<String, Object> response = new HashMap<>();
