@@ -1,154 +1,70 @@
 ### Variables
-@baseUrl = http://localhost:8080
+@host = http://localhost:8080
+@contentType = application/json
 
-### 1. Authentication Endpoints
-
-### Register a new user
-POST {{baseUrl}}/auth/register
-Content-Type: application/json
-
-{
-    "username": "testuser",
-    "email": "testuser@example.com",
-    "password": "password123",
-    "role": ["user"]
-}
-
-### Register an admin user
-POST {{baseUrl}}/auth/register
-Content-Type: application/json
-
-{
-    "username": "admin",
-    "email": "admin@example.com",
-    "password": "admin123",
-    "role": ["admin", "user"]
-}
-
-### Register with existing username (Should fail)
-POST {{baseUrl}}/auth/register
-Content-Type: application/json
-
-{
-    "username": "testuser",
-    "email": "another@example.com",
-    "password": "password123",
-    "role": ["user"]
-}
+### 1. Authentication Tests
 
 ### Login as User
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
+POST {{host}}/auth/login
+Content-Type: {{contentType}}
 
 {
-    "username": "testuser",
-    "password": "password123"
+    "username": "user",
+    "password": "password"
 }
 
 ### Login as Admin
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
+POST {{host}}/auth/login
+Content-Type: {{contentType}}
 
 {
     "username": "admin",
-    "password": "admin123"
+    "password": "password"
 }
 
-### Login with Invalid Credentials (Should fail)
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
+### Login with Invalid Credentials (Should Fail)
+POST {{host}}/auth/login
+Content-Type: {{contentType}}
 
 {
-    "username": "testuser",
-    "password": "wrongpassword"
+    "username": "invalid",
+    "password": "wrong"
 }
-
-### Logout
-POST {{baseUrl}}/auth/logout
 
 ### 2. Protected Endpoints
 
-### Get Access Token for User
-POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
+### Public Test Endpoint (No Auth Required)
+GET {{host}}/auth/test
 
-grant_type=password&client_id=spring-boot-client&username=user1&password=user1pass
+### User Endpoint (Requires Authentication)
+# @name userEndpoint
+GET {{host}}/auth/user
+Authorization: Bearer {{userToken}}
 
-### Get Access Token for Admin
-POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
+### Admin Endpoint (Requires ADMIN Role)
+# @name adminEndpoint
+GET {{host}}/auth/admin
+Authorization: Bearer {{adminToken}}
 
-grant_type=password&client_id=spring-boot-client&username=admin1&password=admin1pass
+### 3. Error Cases
 
-### Public Endpoint (No authentication required)
-GET http://localhost:8080/api/public
+### Access Protected Endpoint without Token
+GET {{host}}/auth/user
 
-### User Endpoint (Requires USER or ADMIN role)
-GET http://localhost:8080/api/user
-Authorization: Bearer {{user_token}}
+### Access with Invalid Token
+GET {{host}}/auth/user
+Authorization: Bearer invalid.token.here
 
-### Admin Endpoint (Requires ADMIN role)
-GET http://localhost:8080/api/admin
-Authorization: Bearer {{admin_token}}
+### Access Admin Endpoint with User Token (Should Fail)
+GET {{host}}/auth/admin
+Authorization: Bearer {{userToken}}
 
-### 3. User Management (Admin Only)
-
-### Get All Users
-GET {{baseUrl}}/api/admin/users
-Accept: application/json
-
-### Get User by ID
-GET {{baseUrl}}/api/admin/users/1
-Accept: application/json
-
-### Get Non-existent User (Should return 404)
-GET {{baseUrl}}/api/admin/users/999
-Accept: application/json
-
-### Update User Role (Admin Only)
-PUT {{baseUrl}}/api/admin/users/1/roles
-Content-Type: application/json
-
-{
-    "roles": ["admin", "user"]
-}
-
-### Delete User (Admin Only)
-DELETE {{baseUrl}}/api/admin/users/1
-
-### Testing Instructions:
-# 1. First register some users (both regular and admin)
-# 2. Login with the created credentials
-# 3. JWT will be automatically stored in cookies
-# 4. Try accessing protected endpoints:
-#    - /api/public should work without auth
-#    - /api/user should work for both user and admin
-#    - /api/admin should only work for admin
-# 5. Test error scenarios:
-#    - Invalid credentials
-#    - Accessing admin endpoints as regular user
-#    - Using expired tokens
-#    - Duplicate registration
-#    - Non-existent resources
-# 6. Test logout functionality
-#    - After logout, protected endpoints should fail
-# 7. Test user management (as admin):
-#    - List all users
-#    - Get specific user
-#    - Update user roles
-#    - Delete user
-
-### Expected HTTP Status Codes:
-# 200 OK: Successful request
-# 201 Created: Successful registration
-# 204 No Content: Successful deletion
-# 400 Bad Request: Invalid input/validation error
-# 401 Unauthorized: Invalid credentials or missing token
-# 403 Forbidden: Valid token but insufficient permissions
-# 404 Not Found: Resource doesn't exist
-# 409 Conflict: Resource already exists (e.g., duplicate username)
-# 500 Internal Server Error: Server-side error
-
-### Variables (Replace these with actual tokens)
-@user_token = your_user_token_here
-@admin_token = your_admin_token_here
+### Notes:
+# 1. First run the login requests to get the tokens
+# 2. Replace {{userToken}} with the token received from user login
+# 3. Replace {{adminToken}} with the token received from admin login
+# 4. Expected responses:
+#    - 200 OK: Successful requests
+#    - 401 Unauthorized: Missing or invalid token
+#    - 403 Forbidden: Valid token but insufficient permissions
+#    - 400 Bad Request: Invalid request format
