@@ -15,7 +15,7 @@
     <artifactId>spring-boot-demo</artifactId>
     <version>1.0.0</version>
     <name>spring-boot-demo</name>
-    <description>Spring Boot Demo Application</description>
+    <description>Spring Boot Demo Application with Method Security</description>
 
     <properties>
         <java.version>17</java.version>
@@ -38,6 +38,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
         <!-- Database -->

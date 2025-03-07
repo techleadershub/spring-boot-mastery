@@ -1,148 +1,185 @@
-# Spring Boot OAuth2 with Keycloak
+# Spring Boot Method-Level Security Demo
 
-This project demonstrates a secure Spring Boot application using Keycloak for OAuth2/OpenID Connect authentication and authorization.
+This project demonstrates method-level security in a Spring Boot 3 application using various security annotations and configurations.
 
 ## Features
 
 - Spring Boot 3.1.5
-- Spring Security OAuth2 Resource Server
-- Keycloak Integration
-- Role-Based Access Control (RBAC)
-- H2 Database Console
-- RESTful API Endpoints
+- Java 17
+- Method-level security using `@PreAuthorize`, `@PostAuthorize`, and `@Secured`
+- Role-based access control (RBAC)
+- In-memory user authentication
+- H2 Database for data storage
+- JUnit tests for security scenarios
 
-## Prerequisites
+## Security Implementation
 
+### 1. Method-Level Security Annotations
+
+The application demonstrates three types of security annotations:
+
+- `@PreAuthorize`: Pre-execution authorization check
+  ```java
+  @PreAuthorize("hasRole('ADMIN')")
+  public List<BusinessData> getAllData()
+  ```
+
+- `@PostAuthorize`: Post-execution authorization check
+  ```java
+  @PostAuthorize("returnObject.owner == authentication.name")
+  public BusinessData getDataById(Long id)
+  ```
+
+- `@Secured`: Simple role-based check
+  ```java
+  @Secured("ROLE_USER")
+  public void updateData(Long id, String newData)
+  ```
+
+### 2. Security Configuration
+
+The security configuration (`SecurityConfig.java`) includes:
+
+```java
+@EnableMethodSecurity(
+    securedEnabled = true,
+    jsr250Enabled = true
+)
+```
+
+- Basic authentication enabled
+- In-memory user store with USER and ADMIN roles
+- Path-based security using `AntPathRequestMatcher`
+- H2 Console access configured
+
+## Project Structure
+
+```
+src/main/java/com/example/demo/
+├── config/
+│   └── SecurityConfig.java         # Security configuration
+├── controller/
+│   └── BusinessController.java     # REST endpoints
+├── model/
+│   └── BusinessData.java          # Data entity
+├── repository/
+│   └── BusinessDataRepository.java # JPA repository
+└── service/
+    └── BusinessService.java       # Secured business logic
+```
+
+## Getting Started
+
+### Prerequisites
 - Java 17 or higher
-- Docker (for running Keycloak)
-- Maven
+- Maven 3.6 or higher
 
-## Setup Instructions
-
-### 1. Start Keycloak
-
-```bash
-docker run -p 8180:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:22.0.4 start-dev
-```
-
-### 2. Configure Keycloak
-
-1. Access Keycloak Admin Console: http://localhost:8180
-2. Login with admin/admin
-3. Create a new realm: `my-realm`
-4. Create a new client:
-   - Client ID: `spring-boot-client`
-   - Client Protocol: `openid-connect`
-   - Access Type: `public`
-   - Valid Redirect URIs: `http://localhost:8080/*`
-5. Create roles:
-   - `USER`
-   - `ADMIN`
-6. Create users:
-   - User 1:
-     - Username: `user1`
-     - Password: `user1pass`
-     - Assign Role: `USER`
-   - Admin:
-     - Username: `admin1`
-     - Password: `admin1pass`
-     - Assign Roles: `ADMIN`, `USER`
-
-### 3. Configure Application
-
-The application is configured with the following properties in `application.properties`:
-
-```properties
-# Keycloak Configuration
-spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/my-realm
-spring.security.oauth2.resourceserver.jwt.jwk-set-uri=${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
-```
-
-### 4. Build and Run
-
+### Build and Run
 ```bash
 mvn clean install
 mvn spring-boot:run
 ```
 
+### Default Users
+1. Regular User:
+   - Username: `user`
+   - Password: `user123`
+   - Role: `USER`
+
+2. Admin User:
+   - Username: `admin`
+   - Password: `admin123`
+   - Roles: `ADMIN`, `USER`
+
 ## API Endpoints
 
-### Public Endpoint
-- `GET /api/public`
-- No authentication required
-- Returns a welcome message
+### Public Endpoints
+- `GET /api/public` - Accessible to all users
 
-### User Endpoint
-- `GET /api/user`
-- Requires `USER` or `ADMIN` role
-- Returns user information and roles
-
-### Admin Endpoint
-- `GET /api/admin`
-- Requires `ADMIN` role
-- Returns admin information and token details
+### Protected Endpoints
+- `GET /api/user` - Requires USER or ADMIN role
+- `GET /api/admin` - Requires ADMIN role
+- `GET /api/data/{id}` - Requires ownership of the data
+- `POST /api/data` - Requires USER or ADMIN role
+- `PUT /api/data/{id}` - Requires USER role
+- `DELETE /api/data/{id}` - Requires ADMIN role
 
 ## Testing
 
-You can use the provided `test.http` file to test the endpoints. Here's how to get started:
+### Using test.http
+The project includes a `test.http` file with sample requests:
 
-1. Get User Token:
 ```http
-POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
+### Public Endpoint
+GET http://localhost:8080/api/public
 
-grant_type=password&client_id=spring-boot-client&username=user1&password=user1pass
+### User Endpoint (USER role)
+GET http://localhost:8080/api/user
+Authorization: Basic dXNlcjp1c2VyMTIz
+
+### Admin Endpoint (ADMIN role)
+GET http://localhost:8080/api/admin
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
 ```
 
-2. Get Admin Token:
-```http
-POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
+### Running Security Tests
+The project includes JUnit tests demonstrating security scenarios:
 
-grant_type=password&client_id=spring-boot-client&username=admin1&password=admin1pass
+```bash
+mvn test
 ```
 
-3. Test Endpoints:
-- Replace `{{user_token}}` and `{{admin_token}}` in `test.http` with the actual tokens
-- Use the HTTP client to send requests to the endpoints
+Test cases cover:
+- Role-based access control
+- Data ownership validation
+- Authorization failures
+- Method-level security annotations
 
-## Security Configuration
+## H2 Database Console
 
-The security configuration (`SecurityConfig.java`) includes:
+Access the H2 Console at: http://localhost:8080/h2-console
 
-- JWT authentication using Keycloak's JWK Set
-- Role-based authorization
-- Stateless session management
-- CSRF protection disabled for API endpoints
-- H2 Console security configuration
-- Custom JWT authority converter for role mapping
+Configuration:
+- JDBC URL: `jdbc:h2:mem:demodb`
+- Username: `sa`
+- Password: `password`
 
-## Additional Features
+## Security Best Practices Demonstrated
 
-### H2 Database Console
-- Available at: http://localhost:8080/h2-console
-- JDBC URL: jdbc:h2:mem:bookdb
-- Username: sa
-- Password: password
+1. **Method-Level Security**
+   - Fine-grained access control at service layer
+   - Role-based authorization
+   - Data ownership validation
+
+2. **Multiple Security Layers**
+   - Path-based security at web layer
+   - Method security at service layer
+   - Data-level security with ownership checks
+
+3. **Proper Configuration**
+   - CSRF protection for H2 Console
+   - Frame options configured for H2 Console
+   - Explicit servlet path handling
 
 ## Troubleshooting
 
-1. Token Issues:
-   - Ensure Keycloak is running and accessible
-   - Verify client configuration in Keycloak
-   - Check token expiration and roles
+1. **Access Denied Errors**
+   - Verify user roles match required authorities
+   - Check method security annotations
+   - Ensure proper authentication headers
 
-2. Access Denied:
-   - Verify user has required roles
-   - Check role mapping in SecurityConfig
-   - Ensure token contains correct role claims
+2. **H2 Console Access**
+   - Verify security configuration allows frame options
+   - Check H2 Console URL and credentials
+   - Ensure CSRF is properly configured
 
-3. H2 Console Access:
-   - Verify security configuration allows H2 Console frame display
-   - Check correct database credentials
+3. **Authentication Issues**
+   - Verify Basic Auth credentials are correctly encoded
+   - Check user exists in UserDetailsService
+   - Confirm roles are properly assigned
 
 ## References
 
-- [Spring Security OAuth2 Documentation](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/index.html)
-- [Keycloak Documentation](https://www.keycloak.org/documentation)
+- [Spring Security Reference](https://docs.spring.io/spring-security/reference/index.html)
+- [Method Security Documentation](https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html)
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
