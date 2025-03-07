@@ -12,14 +12,13 @@
     </parent>
 
     <groupId>com.example</groupId>
-    <artifactId>spring-boot-keycloak</artifactId>
+    <artifactId>spring-boot-demo</artifactId>
     <version>1.0.0</version>
-    <name>spring-boot-keycloak</name>
-    <description>Spring Boot with Keycloak OAuth2</description>
+    <name>spring-boot-demo</name>
+    <description>Spring Boot Demo Application</description>
 
     <properties>
         <java.version>17</java.version>
-        <keycloak.version>22.0.4</keycloak.version>
     </properties>
 
     <dependencies>
@@ -34,14 +33,6 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
@@ -49,14 +40,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Keycloak -->
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-spring-boot-starter</artifactId>
-            <version>${keycloak.version}</version>
-        </dependency>
-
-        <!-- H2 Database -->
+        <!-- Database -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
