@@ -12,10 +12,10 @@
     </parent>
 
     <groupId>com.example</groupId>
-    <artifactId>spring-boot-demo</artifactId>
+    <artifactId>oauth2-auth-server</artifactId>
     <version>1.0.0</version>
-    <name>spring-boot-demo</name>
-    <description>Spring Boot Demo Application</description>
+    <name>oauth2-auth-server</name>
+    <description>OAuth2 Authorization Server Demo</description>
 
     <properties>
         <java.version>17</java.version>
@@ -30,6 +30,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
