@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Spring Security Demo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/public">Public</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" href="/user">User</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" href="/admin">Admin</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+                        <button type="submit" class="btn btn-outline-light">Logout</button>
+                    </form>
+                    <a href="/login" class="btn btn-outline-light" sec:authorize="!isAuthenticated()">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Welcome to Spring Security Demo</h2>
+                    </div>
+                    <div class="card-body">
+                        <div sec:authorize="isAuthenticated()">
+                            <h3>User Information</h3>
+                            <p>Username: <strong th:text="${username}">username</strong></p>
+                            <p>Roles: <strong th:text="${roles}">roles</strong></p>
+                        </div>
+                        <div sec:authorize="!isAuthenticated()">
+                            <p>Please log in to see your user information.</p>
+                        </div>
+
+                        <h3 class="mt-4">Available Endpoints</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Public Endpoint:</strong> /public
+                                <span class="badge bg-success">Open</span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>User Endpoint:</strong> /user
+                                <span class="badge bg-primary">Authenticated</span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Admin Endpoint:</strong> /admin
+                                <span class="badge bg-danger">Admin Only</span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>API Public:</strong> /api/public
+                                <span class="badge bg-success">Open</span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>API Secure:</strong> /api/secure
+                                <span class="badge bg-primary">Authenticated</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
