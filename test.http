@@ -68,17 +68,28 @@ POST {{baseUrl}}/auth/logout
 
 ### 2. Protected Endpoints
 
-### Public Endpoint (No Auth Required)
-GET {{baseUrl}}/api/public
-Accept: application/json
+### Get Access Token for User
+POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
 
-### User Endpoint (Requires Authentication)
-GET {{baseUrl}}/api/user
-Accept: application/json
+grant_type=password&client_id=spring-boot-client&username=user1&password=user1pass
 
-### Admin Endpoint (Requires ADMIN Role)
-GET {{baseUrl}}/api/admin
-Accept: application/json
+### Get Access Token for Admin
+POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=spring-boot-client&username=admin1&password=admin1pass
+
+### Public Endpoint (No authentication required)
+GET http://localhost:8080/api/public
+
+### User Endpoint (Requires USER or ADMIN role)
+GET http://localhost:8080/api/user
+Authorization: Bearer {{user_token}}
+
+### Admin Endpoint (Requires ADMIN role)
+GET http://localhost:8080/api/admin
+Authorization: Bearer {{admin_token}}
 
 ### 3. User Management (Admin Only)
 
@@ -137,3 +148,7 @@ DELETE {{baseUrl}}/api/admin/users/1
 # 404 Not Found: Resource doesn't exist
 # 409 Conflict: Resource already exists (e.g., duplicate username)
 # 500 Internal Server Error: Server-side error
+
+### Variables (Replace these with actual tokens)
+@user_token = your_user_token_here
+@admin_token = your_admin_token_here
