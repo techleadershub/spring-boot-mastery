@@ -1,7 +1,105 @@
+### Variables
+@host = http://localhost:8080
+@adminApiKey = ADMIN-API-KEY-SECRET-123
 
+### 1. Public Endpoint (No Authentication Required)
+GET {{host}}/public
+Accept: application/json
 
+### 2. Secure Endpoint (Requires API Key)
 
-GET http://localhost:8080/
+### Access secure endpoint without API Key (should fail with 401)
+GET {{host}}/secure
+Accept: application/json
+
+### Access secure endpoint with Admin API Key
+GET {{host}}/secure
+Accept: application/json
+X-API-KEY: {{adminApiKey}}
+
+### 3. Admin Endpoints (Requires Admin API Key)
+
+### Generate a new API Key
+POST {{host}}/admin/generate-key
+Content-Type: application/json
+X-API-KEY: {{adminApiKey}}
+
+{
+    "name": "Test API Key",
+    "validityInDays": 30
+}
+
+### List all API Keys
+GET {{host}}/admin/api-keys
+Accept: application/json
+X-API-KEY: {{adminApiKey}}
+
+### Revoke an API Key (replace {keyValue} with an actual key value)
+PUT {{host}}/admin/api-keys/{keyValue}/revoke
+X-API-KEY: {{adminApiKey}}
+
+### Update API Key expiration (replace {keyValue} with an actual key value)
+PUT {{host}}/admin/api-keys/{keyValue}/expiration?validityInDays=60
+X-API-KEY: {{adminApiKey}}
+
+### 4. Testing with Generated API Key
+
+### Access secure endpoint with generated API Key
+# Replace {generatedApiKey} with a key generated from the /admin/generate-key endpoint
+GET {{host}}/secure
+Accept: application/json
+X-API-KEY: {generatedApiKey}
+
+### 5. Error Cases
+
+### Access admin endpoint with non-admin API Key (should fail with 403)
+# Replace {generatedApiKey} with a key generated from the /admin/generate-key endpoint
+GET {{host}}/admin/api-keys
+Accept: application/json
+X-API-KEY: {generatedApiKey}
+
+### Generate API Key with invalid data (should fail with 400)
+POST {{host}}/admin/generate-key
+Content-Type: application/json
+X-API-KEY: {{adminApiKey}}
+
+{
+    "name": "",
+    "validityInDays": -1
+}
+
+### Testing Instructions:
+# 1. Start the application with `mvn spring-boot:run`
+# 2. Execute the requests in order:
+#    - Test the public endpoint (should work without authentication)
+#    - Test the secure endpoint without an API key (should fail)
+#    - Test the secure endpoint with the admin API key (should work)
+#    - Generate a new API key using the admin API key
+#    - Copy the generated key value and use it to test the secure endpoint
+#    - Try to access admin endpoints with the generated key (should fail)
+#    - Revoke the generated key and try to use it again (should fail)
+#
+# Expected HTTP Status Codes:
+# 200 OK: Successful request
+# 201 Created: Successful API key generation
+# 400 Bad Request: Invalid input data
+# 401 Unauthorized: Missing or invalid API key
+# 403 Forbidden: Insufficient permissions
+# 500 Internal Server Error: Server-side error
+
+### cURL Examples:
+
+# Public endpoint
+# curl -X GET http://localhost:8080/public
+
+# Secure endpoint with API key
+# curl -X GET http://localhost:8080/secure -H "X-API-KEY: your-api-key-here"
+
+# Generate new API key (admin only)
+# curl -X POST http://localhost:8080/admin/generate-key \
+#   -H "Content-Type: application/json" \
+#   -H "X-API-KEY: ADMIN-API-KEY-SECRET-123" \
+#   -d '{"name":"Test API Key","validityInDays":30}'
 
 
 
