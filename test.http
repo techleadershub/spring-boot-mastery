@@ -1,154 +1,133 @@
 ### Variables
-@baseUrl = http://localhost:8080
+@host = http://localhost:9000
+@api = {{host}}/api
 
-### 1. Authentication Endpoints
+### 1. User Registration and Public Endpoints
 
-### Register a new user
-POST {{baseUrl}}/auth/register
+### Register a new regular user
+POST {{api}}/auth/register
 Content-Type: application/json
 
 {
-    "username": "testuser",
-    "email": "testuser@example.com",
+    "username": "user1",
+    "email": "user1@example.com",
     "password": "password123",
-    "role": ["user"]
+    "roles": ["USER"]
 }
 
 ### Register an admin user
-POST {{baseUrl}}/auth/register
+POST {{api}}/auth/register
 Content-Type: application/json
 
 {
-    "username": "admin",
-    "email": "admin@example.com",
+    "username": "admin1",
+    "email": "admin1@example.com",
     "password": "admin123",
-    "role": ["admin", "user"]
+    "roles": ["ADMIN", "USER"]
 }
 
-### Register with existing username (Should fail)
-POST {{baseUrl}}/auth/register
+### Test duplicate username (should fail)
+POST {{api}}/auth/register
 Content-Type: application/json
 
 {
-    "username": "testuser",
+    "username": "user1",
     "email": "another@example.com",
     "password": "password123",
-    "role": ["user"]
+    "roles": ["USER"]
 }
 
-### Login as User
-POST {{baseUrl}}/auth/login
+### 2. Protected Endpoints (Basic Auth Required)
+
+### Get current user details (using default user)
+GET {{api}}/users/me
+Authorization: Basic dXNlcjp1c2VyMTIz
+
+### Get current user details (using registered user)
+GET {{api}}/users/me
+Authorization: Basic dXNlcjE6cGFzc3dvcmQxMjM=
+
+### List all users (using default admin)
+GET {{api}}/users
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+### List all users (using registered admin)
+GET {{api}}/users
+Authorization: Basic YWRtaW4xOmFkbWluMTIz
+
+### Get user by ID (admin only)
+GET {{api}}/users/1
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+### Update user roles (admin only)
+PUT {{api}}/users/2/roles
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+{
+    "roles": ["ADMIN", "USER"]
+}
+
+### Delete user (admin only)
+DELETE {{api}}/users/3
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+### 3. Error Cases
+
+### Access admin endpoint as regular user (should fail with 403)
+GET {{api}}/users
+Authorization: Basic dXNlcjp1c2VyMTIz
+
+### Access protected endpoint without auth (should fail with 401)
+GET {{api}}/users/me
+
+### Access with invalid credentials (should fail with 401)
+GET {{api}}/users/me
+Authorization: Basic aW52YWxpZDppbnZhbGlk
+
+### Register with invalid data (should fail with 400)
+POST {{api}}/auth/register
 Content-Type: application/json
 
 {
-    "username": "testuser",
-    "password": "password123"
+    "username": "u",
+    "email": "invalid-email",
+    "password": "short",
+    "roles": ["INVALID_ROLE"]
 }
-
-### Login as Admin
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-    "username": "admin",
-    "password": "admin123"
-}
-
-### Login with Invalid Credentials (Should fail)
-POST {{baseUrl}}/auth/login
-Content-Type: application/json
-
-{
-    "username": "testuser",
-    "password": "wrongpassword"
-}
-
-### Logout
-POST {{baseUrl}}/auth/logout
-
-### 2. Protected Endpoints
-
-### Get Access Token for User
-POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=password&client_id=spring-boot-client&username=user1&password=user1pass
-
-### Get Access Token for Admin
-POST http://localhost:8180/realms/my-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=password&client_id=spring-boot-client&username=admin1&password=admin1pass
-
-### Public Endpoint (No authentication required)
-GET http://localhost:8080/api/public
-
-### User Endpoint (Requires USER or ADMIN role)
-GET http://localhost:8080/api/user
-Authorization: Bearer {{user_token}}
-
-### Admin Endpoint (Requires ADMIN role)
-GET http://localhost:8080/api/admin
-Authorization: Bearer {{admin_token}}
-
-### 3. User Management (Admin Only)
-
-### Get All Users
-GET {{baseUrl}}/api/admin/users
-Accept: application/json
-
-### Get User by ID
-GET {{baseUrl}}/api/admin/users/1
-Accept: application/json
-
-### Get Non-existent User (Should return 404)
-GET {{baseUrl}}/api/admin/users/999
-Accept: application/json
-
-### Update User Role (Admin Only)
-PUT {{baseUrl}}/api/admin/users/1/roles
-Content-Type: application/json
-
-{
-    "roles": ["admin", "user"]
-}
-
-### Delete User (Admin Only)
-DELETE {{baseUrl}}/api/admin/users/1
 
 ### Testing Instructions:
-# 1. First register some users (both regular and admin)
-# 2. Login with the created credentials
-# 3. JWT will be automatically stored in cookies
-# 4. Try accessing protected endpoints:
-#    - /api/public should work without auth
-#    - /api/user should work for both user and admin
-#    - /api/admin should only work for admin
-# 5. Test error scenarios:
-#    - Invalid credentials
-#    - Accessing admin endpoints as regular user
-#    - Using expired tokens
-#    - Duplicate registration
-#    - Non-existent resources
-# 6. Test logout functionality
-#    - After logout, protected endpoints should fail
-# 7. Test user management (as admin):
-#    - List all users
-#    - Get specific user
-#    - Update user roles
-#    - Delete user
+# 1. User Registration:
+#    - Registration endpoints are public (no auth required)
+#    - Test validation rules (username length, email format, password strength)
+#    - Test duplicate username/email handling
+
+# 2. Authentication:
+#    - All protected endpoints require Basic Auth header
+#    - Format: Authorization: Basic base64(username:password)
+#    - Test with both valid and invalid credentials
+
+# 3. User Management:
+#    - All operations require Basic Auth
+#    - Admin operations require ADMIN role
+#    - Regular users can only access their own data
 
 ### Expected HTTP Status Codes:
-# 200 OK: Successful request
 # 201 Created: Successful registration
+# 200 OK: Successful request
 # 204 No Content: Successful deletion
-# 400 Bad Request: Invalid input/validation error
-# 401 Unauthorized: Invalid credentials or missing token
-# 403 Forbidden: Valid token but insufficient permissions
-# 404 Not Found: Resource doesn't exist
-# 409 Conflict: Resource already exists (e.g., duplicate username)
-# 500 Internal Server Error: Server-side error
+# 400 Bad Request: Validation error
+# 401 Unauthorized: Missing/invalid credentials
+# 403 Forbidden: Insufficient permissions
+# 404 Not Found: Resource not found
+# 409 Conflict: Duplicate username/email
 
-### Variables (Replace these with actual tokens)
-@user_token = your_user_token_here
-@admin_token = your_admin_token_here
+### Base64 Encoded Credentials:
+# Default users (created on startup):
+# user:user123        -> dXNlcjp1c2VyMTIz
+# admin:admin123      -> YWRtaW46YWRtaW4xMjM=
+#
+# Registered users (created via API):
+# user1:password123   -> dXNlcjE6cGFzc3dvcmQxMjM=
+# admin1:admin123     -> YWRtaW4xOmFkbWluMTIz=
+# invalid:invalid     -> aW52YWxpZDppbnZhbGlk
