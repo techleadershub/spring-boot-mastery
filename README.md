@@ -1,27 +1,26 @@
-# Spring Boot AOP Masterclass
+# Spring Boot MVC Masterclass
 
-This project demonstrates Aspect-Oriented Programming (AOP) in Spring Boot applications. It showcases various AOP concepts including:
+This project is designed to help students learn Spring MVC architecture, request handling, form validation, session management, and file uploads with hands-on exercises.
 
-* Logging aspects
-* Execution time measurement
-* Annotation-based method logging
-* Transaction management
+## Project Overview
+
+This Spring Boot MVC application demonstrates:
+- MVC Architecture with Controller, Service, and Repository layers
+- Thymeleaf templating for view rendering
+- Form handling and validation
+- Session management for user login/logout
+- File upload processing
+- Bootstrap for responsive UI design
 
 ## Project Structure
 
 ```
-spring-boot-aop-masterclass/
-├── src/main/java/com/example/aop/
-│   ├── annotation/            # Custom annotations for AOP
-│   │   ├── LogExecutionTime.java
-│   │   └── LogMethod.java
-│   ├── aspect/                # AOP aspects
-│   │   ├── ExecutionTimeAspect.java
-│   │   ├── LoggingAspect.java
-│   │   └── MethodLoggingAspect.java
-│   ├── config/                # Application configuration
-│   │   └── DataInitializer.java
-│   ├── controller/            # REST controllers
+spring-boot-mvc-masterclass/
+├── src/main/java/com/example/mvc/
+│   ├── controller/            # MVC Controllers
+│   │   ├── AuthController.java
+│   │   ├── FileUploadController.java
+│   │   ├── HomeController.java
 │   │   └── UserController.java
 │   ├── model/                 # Entity models
 │   │   └── User.java
@@ -29,46 +28,41 @@ spring-boot-aop-masterclass/
 │   │   └── UserRepository.java
 │   ├── service/               # Business services
 │   │   └── UserService.java
-│   └── SpringBootAopMasterclassApplication.java
+│   ├── config/                # Application configuration
+│   │   └── DataInitializer.java
+│   └── SpringBootMvcMasterclassApplication.java
 └── src/main/resources/
-    └── application.properties
+    ├── static/                # Static resources (CSS, JS)
+    ├── templates/             # Thymeleaf templates
+    │   ├── auth/              # Authentication templates
+    │   │   └── login.html
+    │   ├── files/             # File upload templates
+    │   │   └── upload.html
+    │   ├── layout/            # Shared layout templates
+    │   │   └── main.html
+    │   ├── users/             # User management templates
+    │   │   ├── form.html
+    │   │   └── list.html
+    │   └── index.html         # Home page
+    └── application.properties # Application configuration
 ```
 
-## AOP Features
+## Features Implemented
 
-### 1. Logging Aspect
+1. **User Management**
+   - Create, read, update, and delete user records
+   - Form validation with error messages
+   - User list with actions
 
-The `LoggingAspect` provides comprehensive logging for all Spring components:
-- Logs method entry with parameters
-- Logs method exit with return values
-- Logs exceptions when they occur
+2. **File Upload**
+   - File upload handling
+   - File storage on server
+   - Display uploaded images (for profile pictures)
 
-### 2. Execution Time Aspect
-
-The `ExecutionTimeAspect` measures and logs execution time:
-- For methods annotated with `@LogExecutionTime`
-- For all service methods automatically
-
-### 3. Method Logging Aspect
-
-The `MethodLoggingAspect` provides detailed method logging through the `@LogMethod` annotation:
-- Custom messages can be specified in the annotation
-- Logs method entry, parameters, return value, and execution time
-
-## API Endpoints
-
-The application provides the following REST API endpoints for user management:
-
-| Method | URL                         | Description               |
-|--------|-----------------------------|-----------------------------|
-| GET    | /api/users                  | Get all users               |
-| GET    | /api/users/{id}             | Get user by ID              |
-| GET    | /api/users/active           | Get active users            |
-| GET    | /api/users/search?name=xxx  | Search users by name        |
-| POST   | /api/users                  | Create a new user           |
-| PUT    | /api/users/{id}             | Update a user               |
-| DELETE | /api/users/{id}             | Delete a user               |
-| PATCH  | /api/users/{id}/status      | Update user active status   |
+3. **Session Management**
+   - Simple login/logout functionality
+   - Session-based authentication
+   - Conditional navigation elements based on login status
 
 ## Running the Application
 
@@ -81,28 +75,46 @@ The application provides the following REST API endpoints for user management:
    ```
 5. The application will be available at http://localhost:8080
 6. Access the H2 database console at http://localhost:8080/h2-console
-   - JDBC URL: `jdbc:h2:mem:aopdb`
+   - JDBC URL: `jdbc:h2:mem:mvcdb`
    - Username: `sa`
-   - Password: `password`
+   - Password: (leave empty)
 
-## Testing the API
+## Learning Exercises
 
-You can use tools like cURL, Postman, or your web browser to test the API endpoints.
+Try these exercises to enhance your understanding of Spring MVC:
 
-Example cURL commands:
+### Exercise 1: Add Phone Number Field
+Add a phone number field to the User entity and update the related components:
+1. Add a phone field to the User class with proper validation (@Pattern for phone format)
+2. Update the user form template to include the new field
+3. Display the phone number in the user list
 
-```bash
-# Get all users
-curl -X GET http://localhost:8080/api/users
+### Exercise 2: Implement User Search
+Create a search feature for the user list:
+1. Add a search method in UserRepository using @Query
+2. Create a search method in UserService
+3. Add a search form in the user list template
+4. Implement a search endpoint in UserController
 
-# Create a new user
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"firstName":"Alice","lastName":"Johnson","email":"alice.johnson@example.com","phone":"555-666-7777","address":"987 Cedar Ln, Somewhere, USA","active":true}'
+### Exercise 3: Improve File Upload Validation
+Enhance the file upload feature with more robust validation:
+1. Add file type validation (only accept images)
+2. Implement file size validation with custom error messages
+3. Add a preview of the selected image before upload
 
-# Get user by ID
-curl -X GET http://localhost:8080/api/users/1
+### Exercise 4: Create a Custom Error Page
+Implement custom error handling:
+1. Create an error.html template
+2. Implement a CustomErrorController
+3. Style the error page to match the application theme
 
-# Update user status
-curl -X PATCH http://localhost:8080/api/users/1/status?active=false
-```
+### Exercise 5: Add Data Export Feature
+Implement functionality to export user data:
+1. Add an endpoint to export users as CSV
+2. Create a service method to generate CSV data
+3. Add a download button to the user list page
+
+## Additional Resources
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
+- [Spring MVC Documentation](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html)
+- [Thymeleaf Documentation](https://www.thymeleaf.org/documentation.html)

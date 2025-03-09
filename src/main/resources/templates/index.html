@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/main :: layout(~{::title}, ~{::div.content})}">
+<head>
+    <title>Home - Spring MVC Masterclass</title>
+</head>
+<body>
+    <div class="content">
+        <div class="jumbotron bg-light p-5 rounded-3 mb-4">
+            <h1 class="display-4">Welcome to Spring MVC Masterclass</h1>
+            <p class="lead">A hands-on learning project for Spring MVC architecture, request handling, form validation, session management, and file uploads.</p>
+            <hr class="my-4">
+            <p>This project demonstrates core Spring MVC features with practical examples that you can build upon.</p>
+            <div class="mt-4">
+                <a class="btn btn-primary btn-lg me-2" th:href="@{/users}">Manage Users</a>
+                <a class="btn btn-success btn-lg" th:href="@{/files/upload}">Upload Files</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title m-0">User Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Create, read, update and delete users with form validation.</p>
+                        <a th:href="@{/users}" class="btn btn-outline-primary">Go to Users</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title m-0">File Uploads</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Learn how to handle file uploads in Spring MVC.</p>
+                        <a th:href="@{/files/upload}" class="btn btn-outline-success">Upload Files</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title m-0">Session Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Explore user authentication with session handling.</p>
+                        <a th:href="@{/login}" class="btn btn-outline-info">Login Page</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
