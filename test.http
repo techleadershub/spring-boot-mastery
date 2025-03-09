@@ -1,7 +1,41 @@
+### Variables
+@host = http://localhost:8080
 
+### 1. Simple Method (No delay)
+GET {{host}}/api/simple?name=AOP
+Accept: application/json
 
+### 2. Time-Consuming Method (with delay)
+GET {{host}}/api/time-consuming?task=LongRunningTask&delay=2000
+Accept: application/json
 
-GET http://localhost:8080/
+### 3. Time-Consuming Method (with very short delay)
+GET {{host}}/api/time-consuming?task=QuickTask&delay=50
+Accept: application/json
+
+### 4. Time-Consuming Method (with negative delay - will trigger parameter validation warning)
+GET {{host}}/api/time-consuming?task=InvalidTask&delay=-100
+Accept: application/json
+
+### 5. Exception-Throwing Method (no exception)
+GET {{host}}/api/exception?shouldThrow=false
+Accept: application/json
+
+### 6. Exception-Throwing Method (with exception)
+GET {{host}}/api/exception?shouldThrow=true
+Accept: application/json
+
+### 7. Fibonacci Method (first call - cache miss)
+GET {{host}}/api/fibonacci/10
+Accept: application/json
+
+### 8. Fibonacci Method (second call - cache hit)
+GET {{host}}/api/fibonacci/10
+Accept: application/json
+
+### 9. Fibonacci Method (different parameter - cache miss)
+GET {{host}}/api/fibonacci/12
+Accept: application/json
 
 
 
